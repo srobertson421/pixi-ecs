@@ -2,6 +2,7 @@ class Entity {
   constructor() {
     this.id = Symbol();
     this.components = {};
+    this.active = true;
   }
 
   addComponent(component) {

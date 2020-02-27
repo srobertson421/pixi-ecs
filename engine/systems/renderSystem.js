@@ -1,35 +1,30 @@
-const init = (entities, stage) => {
+const init = (entities, ctx) => {}
+
+const update = (entities, ctx) => {
   Object.getOwnPropertySymbols(entities).forEach(entSymbol => {
     const ent = entities[entSymbol];
+    if(ent.hasComponent('render') && ent.hasComponent('position')) {
+      // Render shapes
+      if(ent.hasComponent('shape')) {
+        const shapeComp = ent.getComponent('shape');
+        const posComp = ent.getComponent('position');
+        ctx.fillStyle = shapeComp.color;
+        switch(shapeComp.shape) {
+          case 'rectangle':
+            ctx.fillRect(posComp.x, posComp.y, shapeComp.width, shapeComp.height);
+          default:
+            ctx.fillRect(posComp.x, posComp.y, shapeComp.width, shapeComp.height);
+        }
+      }
 
-    if(ent.hasComponent('sprite') && ent.hasComponent('render') && ent.hasComponent('position')) {
-      ent.getComponent('sprite').texture = PIXI.Texture.from(ent.getComponent('sprite').texturePath);
-      ent.getComponent('sprite').sprite = new PIXI.Sprite(ent.getComponent('sprite').texture);
-      ent.getComponent('sprite').sprite.position.x = ent.getComponent('position').x;
-      ent.getComponent('sprite').sprite.position.y = ent.getComponent('position').y;
-
-      stage.addChild(ent.getComponent('sprite').sprite);
+      if(ent.hasComponent('sprite')) {
+        
+      }
     }
   });
 }
 
-const addEnt = (ent, stage) => {
-  if(ent.hasComponent('sprite') && ent.hasComponent('render') && ent.hasComponent('position')) {
-    ent.getComponent('sprite').texture = PIXI.Texture.from(ent.getComponent('sprite').texturePath);
-    ent.getComponent('sprite').sprite = new PIXI.Sprite(ent.getComponent('sprite').texture);
-    ent.getComponent('sprite').sprite.position.x = ent.getComponent('position').x;
-    ent.getComponent('sprite').sprite.position.y = ent.getComponent('position').y;
-
-    stage.addChild(ent.getComponent('sprite').sprite);
-  }
-}
-
-const draw = (entities, stage, renderer) => {
-  renderer.render(stage);
-}
-
 export default {
   init,
-  draw,
-  addEnt,
+  update
 }

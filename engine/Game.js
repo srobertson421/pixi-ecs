@@ -1,20 +1,23 @@
 class Game {
-  constructor({ width = 800, height = 600, mount = document.body }) {
-    this.renderer = PIXI.autoDetectRenderer(width, height);
-    this.stage = new PIXI.Container();
+  constructor({ width = 800, height = 600, canvas }) {
+    if(!canvas) {
+      throw new Error('Missing canvas reference');
+    }
+
     this.systems = {};
     this.entities = {};
     this.shouldRender = true;
     this.debug = false;
-    mount.appendChild(this.renderer.view);
+    this.ctx = canvas.getContext('2d');
+    this.canvas = canvas;
   }
 
-  init() {
-    Object.keys(this.systems).forEach(key => {
-      this.systems[key].init(this.entities, this.stage);
-    });
+  init() {}
 
-    this.render();
+  startSystems() {
+    Object.keys(this.systems).forEach(key => {
+      this.systems[key].init(this.entities, this.ctx);
+    });
   }
 
   addSystem({ name, system }) {
@@ -31,13 +34,19 @@ class Game {
 
   addEntity(entity) {
     this.entities[entity.id] = entity;
-    // TODO remove this functionality from render system
-    // Render system needs to loop over all entities
-    this.systems['render'].addEnt(this.entities[entity.id], this.stage);
   }
 
   removeEntity(entityId) {
     delete this.entities[entityId];
+  }
+
+  getFirstEntity() {
+    return this.entities[Object.getOwnPropertySymbols(this.entities)[0]];
+  }
+
+  getLastEntity() {
+    const symbols = Object.getOwnPropertySymbols(this.entities);
+    return this.entities[symbols[symbols.length - 1]];
   }
 
   toggleDebug() {
@@ -48,11 +57,15 @@ class Game {
     if(this.shouldRender) {
       window.requestAnimationFrame(() => this.render());
 
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // clear canvas
+
       if(this.debug) {
         console.log(`Entities: ${Object.getOwnPropertySymbols(this.entities).length}`);
       }
 
-      this.systems['render'].draw(this.entities, this.stage, this.renderer);
+      Object.keys(this.systems).forEach(key => {
+        this.systems[key].update(this.entities, this.ctx);
+      });
     }
   }
 }
