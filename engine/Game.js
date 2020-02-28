@@ -10,6 +10,9 @@ class Game {
     this.debug = false;
     this.ctx = canvas.getContext('2d');
     this.canvas = canvas;
+
+    this.canvas.width = width;
+    this.canvas.height = height;
   }
 
   init() {}
